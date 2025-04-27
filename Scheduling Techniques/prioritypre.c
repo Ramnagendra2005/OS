@@ -1,61 +1,67 @@
 #include<stdio.h>
-int main(){
-    // priority scheduling preemptive with gantt chart
-    int n, bt[20], wt[20], tat[20], pr[20], i, j;
+
+int main() {
+    int n, bt[20], wt[20], tat[20], pr[20], at[20], rem_bt[20], i, j, time = 0, completed = 0;
     float avgwt = 0, avgtat = 0;
+    
+    // Input number of processes
     printf("Enter the number of processes: ");
     scanf("%d", &n);
-    
-    // Input burst time for each process
-    printf("Enter the burst time of each process:\n");
+
+    // Input burst time and arrival time for each process
+    printf("Enter the burst time and arrival time of each process:\n");
     for (i = 0; i < n; i++) {
-        printf("Process %d: ", i + 1);
+        printf("Process %d\n", i + 1);
+        printf("Burst time: ");
         scanf("%d", &bt[i]);
+        printf("Arrival time: ");
+        scanf("%d", &at[i]);
+        rem_bt[i] = bt[i]; // Initialize remaining burst times
     }
-    
+
     // Input priority for each process
     printf("Enter the priority of each process:\n");
     for (i = 0; i < n; i++) {
         printf("Process %d: ", i + 1);
         scanf("%d", &pr[i]);
     }
-    
-    // Sort the processes based on priority
-    for (i = 0; i < n - 1; i++) {
-        for (j = i + 1; j < n; j++) {
-            if (pr[i] > pr[j]) {
-                // Swap priorities
-                int temp = pr[i];
-                pr[i] = pr[j];
-                pr[j] = temp;
-                
-                // Swap burst times accordingly
-                temp = bt[i];
-                bt[i] = bt[j];
-                bt[j] = temp;
+
+    // Preemptive priority scheduling algorithm
+    printf("\nProcess\tBurst Time\tArrival Time\tPriority\tWaiting Time\tTurnaround Time\n");
+
+    while (completed < n) {
+        int min_priority = 1000000, proc_index = -1;
+
+        // Find the process with the highest priority that has arrived
+        for (i = 0; i < n; i++) {
+            if (rem_bt[i] > 0 && at[i] <= time && pr[i] < min_priority) {
+                min_priority = pr[i];
+                proc_index = i;
             }
         }
-    }
-    
-    // Calculate waiting time for each process
-    wt[0] = 0;
-    for (i = 1; i < n; i++) {
-        wt[i] = 0;
-        for (j = 0; j < i; j++) {
-            wt[i] += bt[j];
+
+        // If no process is found (all processes arrived and completed), break the loop
+        if (proc_index == -1) {
+            time++;
+            continue;
+        }
+
+        // Execute the selected process for 1 unit time
+        rem_bt[proc_index]--;
+        time++;
+
+        // If process is completed, calculate waiting and turnaround times
+        if (rem_bt[proc_index] == 0) {
+            completed++;
+            tat[proc_index] = time - at[proc_index]; // Turnaround time = Completion time - Arrival time
+            wt[proc_index] = tat[proc_index] - bt[proc_index]; // Waiting time = Turnaround time - Burst time
+            avgwt += wt[proc_index];
+            avgtat += tat[proc_index];
+            printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", proc_index + 1, bt[proc_index], at[proc_index], pr[proc_index], wt[proc_index], tat[proc_index]);
         }
     }
 
-    // Output the process table with burst time, waiting time, and turnaround time
-    printf("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n");
-    for (i = 0; i < n; i++) {
-        tat[i] = bt[i] + wt[i]; // Turnaround time = Burst Time + Waiting Time
-        avgwt += wt[i];
-        avgtat += tat[i];
-        printf("%d\t%d\t\t%d\t\t%d\n", i + 1, bt[i], wt[i], tat[i]);
-    }
-    
-    // Calculate average waiting time and average turnaround time
+    // Calculate and display average waiting time and average turnaround time
     avgwt /= n;
     avgtat /= n;
     printf("\nAverage Waiting Time: %.2f", avgwt);
@@ -63,7 +69,7 @@ int main(){
 
     // Gantt Chart
     printf("\nGantt Chart:\n");
-    printf(" ");
+    time = 0;
     for (i = 0; i < n; i++) {
         for (j = 0; j < bt[i]; j++) {
             printf("--");
@@ -72,14 +78,7 @@ int main(){
     }
     printf("\n|");
     for (i = 0; i < n; i++) {
-        for (j = 0; j < bt[i] - 1; j++) {
-            printf(" ");
-        }
         printf("P%d", i + 1); // Process display
-        for (j = 0; j < bt[i] - 1; j++) {
-            printf(" ");
-        }
-        printf("|");
     }
     printf("\n ");
     for (i = 0; i < n; i++) {
@@ -89,16 +88,13 @@ int main(){
         printf(" ");
     }
     printf("\n");
-    
+
     // Display completion times in the Gantt chart
     printf("0");
-    int time = 0;
+    int time_counter = 0;
     for (i = 0; i < n; i++) {
-        time += bt[i];
-        if (time < 10)
-            printf("  %d", time);  // Aligning single-digit times
-        else
-            printf(" %d", time);
+        time_counter += bt[i];
+        printf("  %d", time_counter);  // Aligning times
     }
     printf("\n");
 
