@@ -1,7 +1,7 @@
 #include<stdio.h>
 
 int main() {
-    int n, bt[20], wt[20], tat[20], at[20], i, j, quantum;
+    int n, bt[20], wt[20], tat[20], at[20], ct[20], i, j, quantum;
     float avgwt = 0, avgtat = 0;
 
     // Input the number of processes
@@ -26,6 +26,7 @@ int main() {
     for (i = 0; i < n; i++) {
         wt[i] = 0;
         tat[i] = 0;
+        ct[i] = 0;
     }
 
     // Round robin scheduling with arrival time
@@ -44,8 +45,9 @@ int main() {
                     remaining[i] -= quantum;
                 } else {
                     time += remaining[i];
+                    ct[i] = time; // Completion Time = current time
                     wt[i] = time - bt[i] - at[i]; // Waiting time = time spent - burst time - arrival time
-                    tat[i] = time - at[i]; // Turnaround time = time - arrival time
+                    tat[i] = ct[i] - at[i]; // Turnaround time = completion time - arrival time
                     remaining[i] = 0;
                     completed++;
                 }
@@ -76,11 +78,11 @@ int main() {
     printf("\n");
 
     // Detailed table display
-    printf("\nProcess | Burst Time | Arrival Time | Waiting Time | Turnaround Time\n");
-    printf("-------------------------------------------------------------------\n");
+    printf("\nProcess | Burst Time | Arrival Time | Completion Time | Waiting Time | Turnaround Time\n");
+    printf("-------------------------------------------------------------------------------\n");
     for (i = 0; i < n; i++) {
-        printf("  P%d    |    %d     |      %d      |     %d      |      %d\n", 
-            i + 1, bt[i], at[i], wt[i], tat[i]);
+        printf("  P%d    |    %d     |      %d      |        %d       |     %d      |      %d\n", 
+            i + 1, bt[i], at[i], ct[i], wt[i], tat[i]);
     }
 
     // Calculate average waiting time and average turnaround time
