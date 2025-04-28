@@ -53,17 +53,21 @@ int main() {
             completed++;
             endTime = time;
             completionTime[smallest] = endTime;
+
+            // Turnaround Time = Completion Time - Arrival Time
             turnaroundTime[smallest] = completionTime[smallest] - arrivalTime[smallest];
+
+            // Waiting Time = Turnaround Time - Burst Time
             waitingTime[smallest] = turnaroundTime[smallest] - burstTime[smallest];
         }
     }
 
     // Display process details
-    printf("\n\nProcess\tBurst Time\tArrival Time\tWaiting Time\tTurnaround Time\n");
+    printf("\n\nProcess\tBurst Time\tArrival Time\tCompletion Time\tWaiting Time\tTurnaround Time\n");
     for (i = 0; i < numberOfProcesses; i++) {
         totalWaitingTime += waitingTime[i];
         totalTurnaroundTime += turnaroundTime[i];
-        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, burstTime[i], arrivalTime[i], waitingTime[i], turnaroundTime[i]);
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, burstTime[i], arrivalTime[i], completionTime[i], waitingTime[i], turnaroundTime[i]);
     }
 
     // Calculate and display average waiting time and turnaround time
