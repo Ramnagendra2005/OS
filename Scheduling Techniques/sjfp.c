@@ -1,78 +1,64 @@
 #include <stdio.h>
 
 int main() {
-    int numberOfProcesses, burstTime[20], remainingTime[20], arrivalTime[20];
-    int waitingTime[20], turnaroundTime[20], completionTime[20];
-    int i, smallest, time = 0, endTime;
-    float totalWaitingTime = 0, totalTurnaroundTime = 0;
-    int completed = 0;
+    int n, bt[20], rt[20], at[20];
+    int wt[20], tat[20], ct[20];
+    int i, sm, t = 0, end;
+    float avgwt = 0, avgtat = 0;
+    int comp = 0;
 
-    // Input number of processes
     printf("Enter the number of processes: ");
-    scanf("%d", &numberOfProcesses);
+    scanf("%d", &n);
 
-    // Input burst times and arrival times for each process
     printf("Enter the burst time and arrival time of each process:\n");
-    for (i = 0; i < numberOfProcesses; i++) {
+    for (i = 0; i < n; i++) {
         printf("Process %d\n", i + 1);
         printf("Burst time: ");
-        scanf("%d", &burstTime[i]);
+        scanf("%d", &bt[i]);
         printf("Arrival time: ");
-        scanf("%d", &arrivalTime[i]);
-        remainingTime[i] = burstTime[i];
+        scanf("%d", &at[i]);
+        rt[i] = bt[i];
     }
 
-    printf("\nGantt Chart:\n");
-    printf("|");
+    printf("\nGantt Chart:\n|");
 
-    // Process scheduling loop
-    while (completed != numberOfProcesses) {
-        smallest = -1;
-        // Find the process with the smallest remaining time that has arrived
-        for (i = 0; i < numberOfProcesses; i++) {
-            if (remainingTime[i] > 0 && arrivalTime[i] <= time) {
-                if (smallest == -1 || remainingTime[i] < remainingTime[smallest]) {
-                    smallest = i;
-                }
+    while (comp != n) {
+        sm = -1;
+        for (i = 0; i < n; i++) {
+            if (rt[i] > 0 && at[i] <= t) {
+                if (sm == -1 || rt[i] < rt[sm])
+                    sm = i;
             }
         }
 
-        if (smallest == -1) {
-            time++;
+        if (sm == -1) {
+            t++;
             continue;
         }
 
-        // Print process in Gantt chart
-        printf(" P%d |", smallest + 1);
+        printf(" P%d |", sm + 1);
 
-        remainingTime[smallest]--;
-        time++;
+        rt[sm]--;
+        t++;
 
-        // When process completes, update completion time, turnaround time, and waiting time
-        if (remainingTime[smallest] == 0) {
-            completed++;
-            endTime = time;
-            completionTime[smallest] = endTime;
-
-            // Turnaround Time = Completion Time - Arrival Time
-            turnaroundTime[smallest] = completionTime[smallest] - arrivalTime[smallest];
-
-            // Waiting Time = Turnaround Time - Burst Time
-            waitingTime[smallest] = turnaroundTime[smallest] - burstTime[smallest];
+        if (rt[sm] == 0) {
+            comp++;
+            end = t;
+            ct[sm] = end;
+            tat[sm] = ct[sm] - at[sm];
+            wt[sm] = tat[sm] - bt[sm];
         }
     }
 
-    // Display process details
-    printf("\n\nProcess\tBurst Time\tArrival Time\tCompletion Time\tWaiting Time\tTurnaround Time\n");
-    for (i = 0; i < numberOfProcesses; i++) {
-        totalWaitingTime += waitingTime[i];
-        totalTurnaroundTime += turnaroundTime[i];
-        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, burstTime[i], arrivalTime[i], completionTime[i], waitingTime[i], turnaroundTime[i]);
+    printf("\n\nProcess\tBT\tAT\tCT\tWT\tTAT\n");
+    for (i = 0; i < n; i++) {
+        avgwt += wt[i];
+        avgtat += tat[i];
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n", i + 1, bt[i], at[i], ct[i], wt[i], tat[i]);
     }
 
-    // Calculate and display average waiting time and turnaround time
-    printf("\nAverage Waiting Time: %.2f\n", totalWaitingTime / numberOfProcesses);
-    printf("Average Turnaround Time: %.2f\n", totalTurnaroundTime / numberOfProcesses);
+    printf("\nAverage Waiting Time: %.2f\n", avgwt / n);
+    printf("Average Turnaround Time: %.2f\n", avgtat / n);
 
     return 0;
 }
