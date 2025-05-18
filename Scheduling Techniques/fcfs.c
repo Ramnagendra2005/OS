@@ -6,27 +6,28 @@ int main() {
     scanf("%d", &n);
 
     int at[n], bt[n], ct[n], tat[n], wt[n];
-    int p[n]; // process id array
+    int p[n]; // process IDs
 
     printf("Enter Arrival Time and Burst Time for each process:\n");
     for (int i = 0; i < n; i++) {
+        printf("P%d - Arrival Time and Burst Time: ", i + 1);
         scanf("%d %d", &at[i], &bt[i]);
-        p[i] = i; // initial process id
+        p[i] = i; // Assign process ID
     }
 
-    // Sort by arrival time
-    for (int i = 0; i < n-1; i++) {
-        for (int j = i+1; j < n; j++) {
-            if (at[i] > at[j]) {
-                // Swap arrival time
+    // Sort by Arrival Time (and by PID to maintain stable order if needed)
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (at[i] > at[j] || (at[i] == at[j] && p[i] > p[j])) {
+                // Swap AT
                 int temp = at[i];
                 at[i] = at[j];
                 at[j] = temp;
-                // Swap burst time
+                // Swap BT
                 temp = bt[i];
                 bt[i] = bt[j];
                 bt[j] = temp;
-                // Swap process id
+                // Swap PID
                 temp = p[i];
                 p[i] = p[j];
                 p[j] = temp;
@@ -34,74 +35,66 @@ int main() {
         }
     }
 
-    // Calculate Completion Time (ct)
-    int crnt = 0;
+    // Calculate Completion Time (CT)
+    int current_time = 0;
     for (int i = 0; i < n; i++) {
-        if (crnt < at[i]) {
-            crnt = at[i]; // CPU idle
-        }
-        crnt += bt[i];
-        ct[i] = crnt;
+        if (current_time < at[i])
+            current_time = at[i]; // CPU idle until process arrives
+        current_time += bt[i];
+        ct[i] = current_time;
     }
 
-    // Calculate TAT and WT
-    double avg_wt = 0;
-    double avg_tat = 0;
+    // Calculate Turnaround Time (TAT) and Waiting Time (WT)
+    double avg_tat = 0, avg_wt = 0;
     for (int i = 0; i < n; i++) {
         tat[i] = ct[i] - at[i];
         wt[i] = tat[i] - bt[i];
-        avg_wt += wt[i];
         avg_tat += tat[i];
+        avg_wt += wt[i];
     }
 
-    avg_wt /= n;
     avg_tat /= n;
+    avg_wt /= n;
 
-    // Display Table
+    // Print Table
     printf("\nProcess\tAT\tBT\tCT\tTAT\tWT\n");
     for (int i = 0; i < n; i++) {
-        printf("P%d\t%d\t%d\t%d\t%d\t%d\n", p[i]+1, at[i], bt[i], ct[i], tat[i], wt[i]);
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n", p[i] + 1, at[i], bt[i], ct[i], tat[i], wt[i]);
     }
 
-    // Display Gantt Chart
-    printf("\nGantt Chart:\n");
+    // Print Gantt Chart
+    printf("\nGantt Chart:\n ");
 
-    printf(" |");
+    // Top bar
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < bt[i]; j++) {
-            printf("-");
-        }
-        printf("|");
+        printf("----");
     }
-    printf("\n");
+    printf("-\n");
 
-    printf(" ");
+    // Process IDs
+    printf("|");
     for (int i = 0; i < n; i++) {
-        printf("P%d", p[i]+1);
-        for (int j = 0; j < bt[i]-1; j++) {
-            printf(" ");
-        }
-        printf(" ");
+        printf("P%d |", p[i] + 1);
     }
-    printf("\n");
+    printf("\n ");
 
-    printf(" |");
+    // Bottom bar
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < bt[i]; j++) {
-            printf("-");
-        }
-        printf("|");
+        printf("----");
     }
-    printf("\n");
+    printf("-\n");
 
-    printf("%d", (at[0] > 0) ? at[0] : 0);
-    int temp = (at[0] > 0) ? at[0] : 0;
+    // Time markers
+    int start_time = (at[0] > 0) ? at[0] : 0;
+    printf("%d", start_time);
     for (int i = 0; i < n; i++) {
-        temp = (temp > at[i]) ? temp : at[i];
-        temp += bt[i];
-        printf("\t%d", temp);
+        if (ct[i] < 10)
+            printf("   %d", ct[i]);
+        else
+            printf("  %d", ct[i]);
     }
 
+    // Averages
     printf("\n\nAverage Waiting Time = %.2lf", avg_wt);
     printf("\nAverage Turnaround Time = %.2lf\n", avg_tat);
 
