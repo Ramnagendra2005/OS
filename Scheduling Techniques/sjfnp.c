@@ -1,32 +1,34 @@
-#include<stdio.h>
+#include <stdio.h>
 
 int main() {
-    int n, bt[20], wt[20], tat[20], at[20], ct[20], i, j;
-    float avgwt = 0, avgtat = 0;
-
+    int n;
     printf("Enter the number of processes: ");
     scanf("%d", &n);
 
+    // Define arrays of size n after getting user input
+    int bt[n], at[n], wt[n], tat[n], ct[n], pid[n];
+    float avgwt = 0, avgtat = 0;
+    int i, j;
+
     printf("Enter the burst time and arrival time of each process:\n");
     for (i = 0; i < n; i++) {
-        printf("Process %d\n", i + 1);
+        pid[i] = i + 1;
+        printf("Process %d\n", pid[i]);
         printf("Burst time: ");
         scanf("%d", &bt[i]);
         printf("Arrival time: ");
         scanf("%d", &at[i]);
     }
 
-    // Sort based on arrival time and burst time
+    // Sort by arrival time, then by burst time
     for (i = 0; i < n - 1; i++) {
         for (j = i + 1; j < n; j++) {
             if (at[i] > at[j] || (at[i] == at[j] && bt[i] > bt[j])) {
-                int temp = bt[i];
-                bt[i] = bt[j];
-                bt[j] = temp;
+                int temp;
 
-                temp = at[i];
-                at[i] = at[j];
-                at[j] = temp;
+                temp = bt[i]; bt[i] = bt[j]; bt[j] = temp;
+                temp = at[i]; at[i] = at[j]; at[j] = temp;
+                temp = pid[i]; pid[i] = pid[j]; pid[j] = temp;
             }
         }
     }
@@ -34,23 +36,23 @@ int main() {
     int time = 0;
     for (i = 0; i < n; i++) {
         if (time < at[i])
-            time = at[i]; // CPU idle till process arrives
+            time = at[i];
 
         time += bt[i];
         ct[i] = time;
     }
 
     for (i = 0; i < n; i++) {
-        tat[i] = ct[i] - at[i]; // Turnaround time = Completion Time - Arrival Time
-        wt[i] = tat[i] - bt[i]; // Waiting time = Turnaround Time - Burst Time
+        tat[i] = ct[i] - at[i];
+        wt[i] = tat[i] - bt[i];
 
         avgwt += wt[i];
         avgtat += tat[i];
     }
 
-    printf("\nProcess\tBurst Time\tArrival Time\tCompletion Time\tWaiting Time\tTurnaround Time\n");
+    printf("\nProcess\tPID\tBurst Time\tArrival Time\tCompletion Time\tWaiting Time\tTurnaround Time\n");
     for (i = 0; i < n; i++) {
-        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, bt[i], at[i], ct[i], wt[i], tat[i]);
+        printf("%d\tP%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, pid[i], bt[i], at[i], ct[i], wt[i], tat[i]);
     }
 
     avgwt /= n;
@@ -65,7 +67,7 @@ int main() {
     }
     printf("-\n|");
     for (i = 0; i < n; i++) {
-        printf(" P%d |", i + 1);
+        printf(" P%d |", pid[i]);
     }
     printf("\n ");
     for (i = 0; i < n; i++) {
