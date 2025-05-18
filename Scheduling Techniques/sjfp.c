@@ -1,17 +1,13 @@
 #include <stdio.h>
 
 int main() {
-    int n, quantum;
-    int bt[20], rt[20], at[20];
+    int n, bt[20], rt[20], at[20];
     int wt[20], tat[20], ct[20];
-    int i, currentTime = 0, completed = 0;
+    int i, currentTime = 0, completed = 0, minIndex;
     float totalWT = 0, totalTAT = 0;
 
     printf("Enter the number of processes: ");
     scanf("%d", &n);
-
-    printf("Enter time quantum: ");
-    scanf("%d", &quantum);
 
     printf("Enter the burst time and arrival time for each process:\n");
     for (i = 0; i < n; i++) {
@@ -26,34 +22,33 @@ int main() {
     printf("\nGantt Chart:\n|");
 
     while (completed != n) {
-        int executed = 0;
+        minIndex = -1;
 
         for (i = 0; i < n; i++) {
             if (rt[i] > 0 && at[i] <= currentTime) {
-                printf(" P%d |", i + 1);
-
-                if (rt[i] <= quantum) {
-                    currentTime += rt[i];
-                    rt[i] = 0;
-                    completed++;
-
-                    ct[i] = currentTime;
-                    tat[i] = ct[i] - at[i];
-                    wt[i] = tat[i] - bt[i];
-                    totalWT += wt[i];
-                    totalTAT += tat[i];
-                } else {
-                    currentTime += quantum;
-                    rt[i] -= quantum;
+                if (minIndex == -1 || rt[i] < rt[minIndex]) {
+                    minIndex = i;
                 }
-
-                executed = 1;
             }
         }
 
-        if (!executed) {
-            printf(" Idle |");
+        if (minIndex == -1) {
             currentTime++;
+            continue;
+        }
+
+        printf(" P%d |", minIndex + 1);
+
+        rt[minIndex]--;
+        currentTime++;
+
+        if (rt[minIndex] == 0) {
+            completed++;
+            ct[minIndex] = currentTime;
+            tat[minIndex] = ct[minIndex] - at[minIndex];
+            wt[minIndex] = tat[minIndex] - bt[minIndex];
+            totalWT += wt[minIndex];
+            totalTAT += tat[minIndex];
         }
     }
 
